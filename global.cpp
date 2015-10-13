@@ -102,7 +102,7 @@ void Global::setup(StartupConfig startupConfig) {
     this->startupNote = startupConfig.startupNoteLid;
     startupConfig.accountId = accountId;
     accountsManager = new AccountsManager(startupConfig.accountId);
-    disableIndexing = startupConfig.disableIndexing;
+    enableIndexing = startupConfig.enableIndexing;
 
     cryptCounter = 0;
     attachmentNameDelimeter = "------";
@@ -184,9 +184,19 @@ QString Global::getProgramDirPath() {
 }
 
 
+void Global::setDeleteConfirmation(bool value) {
+    settings->beginGroup("Appearance");
+    settings->setValue("confirmDeletes", value);
+    settings->endGroup();
+}
+
+
 // Should we confirm all deletes?
 bool Global::confirmDeletes() {
-    return true;
+    settings->beginGroup("Appearance");
+    bool confirmDeletes = settings->value("confirmDeletes", true).toBool();
+    settings->endGroup();
+    return confirmDeletes;
 }
 
 
@@ -741,6 +751,19 @@ int Global::getMiddleClickAction() {
 }
 
 
+
+bool Global::newNoteFocusToTitle() {
+    settings->beginGroup("Appearance");
+    bool returnValue = settings->value("newNoteFocusOnTitle", false).toBool();
+    settings->endGroup();
+    return returnValue;
+}
+
+void Global::setNewNoteFocusToTitle(bool focus) {
+    settings->beginGroup("Appearance");
+    settings->setValue("newNoteFocusOnTitle", focus);
+    settings->endGroup();
+}
 
 
 void Global::stackDump(int max) {

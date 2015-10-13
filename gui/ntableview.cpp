@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "numberdelegate.h"
 #include <QApplication>
 #include <QMouseEvent>
+#include <QShortcut>
 #include <sql/resourcetable.h>
 #include "sql/nsqlquery.h"
 #include <QMessageBox>
@@ -178,7 +179,7 @@ NTableView::NTableView(QWidget *parent) :
     this->model()->setHeaderData(NOTE_TABLE_REMINDER_TIME_POSITION, Qt::Horizontal, QObject::tr("Reminder Due"));
     this->model()->setHeaderData(NOTE_TABLE_REMINDER_TIME_DONE_POSITION, Qt::Horizontal, QObject::tr("Reminder Completed"));
     this->model()->setHeaderData(NOTE_TABLE_SOURCE_POSITION, Qt::Horizontal, QObject::tr("Source"));
-    this->model()->setHeaderData(NOTE_TABLE_SOURCE_URL_POSITION, Qt::Horizontal, QObject::tr("Source Url"));
+    this->model()->setHeaderData(NOTE_TABLE_SOURCE_URL_POSITION, Qt::Horizontal, QObject::tr("Source URL"));
     this->model()->setHeaderData(NOTE_TABLE_SOURCE_APPLICATION_POSITION, Qt::Horizontal, QObject::tr("Source Application"));
     this->model()->setHeaderData(NOTE_TABLE_LONGITUDE_POSITION, Qt::Horizontal, QObject::tr("Longitude"));
     this->model()->setHeaderData(NOTE_TABLE_LATITUDE_POSITION, Qt::Horizontal, QObject::tr("Latitude"));
@@ -192,6 +193,7 @@ NTableView::NTableView(QWidget *parent) :
 
     contextMenu = new QMenu(this);
     this->setFont(global.getGuiFont(font()));
+    contextMenu->setFont(global.getGuiFont(font()));
 
     openNoteAction = new QAction(tr("Open Note"), this);
     contextMenu->addAction(openNoteAction);
@@ -221,6 +223,12 @@ NTableView::NTableView(QWidget *parent) :
     contextMenu->addAction(deleteNoteAction);
     connect(deleteNoteAction, SIGNAL(triggered()), this, SLOT(deleteSelectedNotes()));
     deleteNoteAction->setFont(global.getGuiFont(font()));
+    deleteNoteAction->setShortcut(QKeySequence::Delete);
+
+    QShortcut *deleteShortcut = new QShortcut(this);
+    deleteShortcut->setKey(QKeySequence(Qt::Key_Delete));
+    deleteShortcut->setContext(Qt::WidgetShortcut);
+    connect(deleteShortcut, SIGNAL(activated()), this, SLOT(deleteSelectedNotes()));
 
     restoreNoteAction = new QAction(tr("Restore Note"), this);
     contextMenu->addAction(restoreNoteAction);
@@ -255,6 +263,7 @@ NTableView::NTableView(QWidget *parent) :
 
     contextMenu->addSeparator();
     colorMenu = new QMenu(tr("Title Color"));
+    colorMenu->setFont(global.getGuiFont(font()));
     contextMenu->addMenu(colorMenu);
 
     noteTitleColorWhiteAction = new QAction(tr("White"), colorMenu);
@@ -1007,7 +1016,8 @@ void NTableView::setColumnsVisible() {
 
     value = global.settings->value("reminderOrder", false).toBool();
     tableViewHeader->reminderOrderAction->setChecked(!value);
-    setColumnHidden(NOTE_TABLE_REMINDER_ORDER_POSITION, value);
+    //setColumnHidden(NOTE_TABLE_REMINDER_ORDER_POSITION, value);
+    setColumnHidden(NOTE_TABLE_REMINDER_ORDER_POSITION, true);  // Column hidden because it isn't really needed
 
     value = global.settings->value("isPinned", false).toBool();
     tableViewHeader->pinnedAction->setChecked(!value);
